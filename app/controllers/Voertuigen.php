@@ -31,42 +31,34 @@ class Voertuigen extends Controller
     }
     public function beschikbaarvoertuig($instructeurId)
     {
-        $result = $this->voertuigModel->getBeschikbaarVoertuig($instructeurId);
-        if ($result)
-        {
-           $Voornaam = $result[0]->Voornaam;
-           $Tussenvoegsel = $result[0]->Tussenvoegsel;
-           $Achternaam = $result[0]->Achternaam;
-           $DatumInDienst = $result[0]->DatumInDienst;
-           $AantalSterren = $result[0]->AantalSterren;
-        }
-        else 
-        {
-            $Voornaam = '';
-            $Tussenvoegsel = '';
-            $Achternaam = '';
-            $DatumInDienst = '';
-            $AantalSterren = '';
-        }
-        $rows = "";
-        foreach ($result as $beschikbaarvoertuig) {
+        $gebruikteVoertuigen = $this->voertuigModel->getBeschikbaarVoertuig($instructeurId);
+        $instructeur = $this->voertuigModel->getBeschikbaarVoertuigById($instructeurId);
+        
+        if (sizeOf($gebruikteVoertuigen) == 0 ) {
+            $rows = "<tr><td colspan='6'>Er zijn op dit moment nog geen voertuigen toegewezen aan deze instructeur</td></tr>";
+            header('Refresh:3; url=' . URLROOT . '/voertuigen/index');
+        } else {
+            $rows = '';
+            foreach ($gebruikteVoertuigen as $value){
             $rows .= "<tr>
-                      <td>$beschikbaarvoertuig->TypeVoertuig</td>
-                      <td>$beschikbaarvoertuig->Type</td>
-                      <td>$beschikbaarvoertuig->Kenteken</td>
-                      <td>$beschikbaarvoertuig->Bouwjaar</td>
-                      <td>$beschikbaarvoertuig->Brandstof</td>
-                      <td>$beschikbaarvoertuig->Rijbewijscategorie</td>
-                     </tr>";
+                        <td>$value->TypeVoertuig</td>
+                        <td>$value->Type</td>
+                        <td>$value->Kenteken</td>
+                        <td>$value->Bouwjaar</td>
+                        <td>$value->Brandstof</td>
+                        <td>$value->Rijbewijscategorie</td>
+                      </tr>";
+            }
         }
+        
         $data = [
            'title' => 'Door instructeur gebruikte voertuigen',
            'rows' => $rows,
-           'Voornaam'=> $Voornaam,
-           'Achternaam' => $Achternaam,
-           'Tussenvoegsel' => $Tussenvoegsel,
-           'DatumInDienst' => $DatumInDienst,
-           'AantalSterren' => $AantalSterren
+           'Voornaam'=> $instructeur->Voornaam,
+           'Achternaam' => $instructeur->Achternaam,
+           'Tussenvoegsel' => $instructeur->Tussenvoegsel,
+           'DatumInDienst' => $instructeur->DatumInDienst,
+           'AantalSterren' => $instructeur->AantalSterren
         ];
         $this->view('voertuigen/beschikbaarvoertuig', $data);
     }
